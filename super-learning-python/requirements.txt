@@ -18,3 +18,7 @@ pyyaml==6.0.1  # YAML 解析
 # 测试
 pytest==7.4.4
 pytest-asyncio==0.23.3
+
+# 可视化
+plotly==5.18.0
+kaleido==0.2.1
