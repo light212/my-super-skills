@@ -13,14 +13,28 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const WORKSPACE = process.env.WORKSPACE || '/Users/tang/.openclaw/workspaces/yirenverse';
-const CONFIG_PATH = join(WORKSPACE, 'my-super-skills/super-learning/config/auto-learning.json');
-const TRIGGER_LOG_PATH = join(WORKSPACE, 'my-super-skills/super-learning/logs/auto-triggers.log');
+
+// 修复：使用环境变量或默认路径，支持多用户
+const WORKSPACE = process.env.WORKSPACE || join(process.env.HOME || '/tmp', '.openclaw/workspaces/default');
+const SUPER_LEARNING_DIR = process.env.SUPER_LEARNING_DIR || join(process.env.HOME || '/tmp', '.openclaw/skills/super-learning');
+
+const CONFIG_PATH = join(SUPER_LEARNING_DIR, 'config/auto-learning.json');
+const TRIGGER_LOG_PATH = join(SUPER_LEARNING_DIR, 'logs/auto-triggers.log');
 
 // 确保目录存在
-const logsDir = dirname(TRIGGER_LOG_PATH);
-if (!existsSync(logsDir)) {
-  mkdirSync(logsDir, { recursive: true });
+try {
+  const logsDir = dirname(TRIGGER_LOG_PATH);
+  if (!existsSync(logsDir)) {
+    mkdirSync(logsDir, { recursive: true });
+  }
+  
+  const configDir = dirname(CONFIG_PATH);
+  if (!existsSync(configDir)) {
+    mkdirSync(configDir, { recursive: true });
+  }
+} catch (error) {
+  console.error('[AutoTrigger] Failed to create directories:', error.message);
+  // 继续执行，使用默认路径
 }
 
 /**
@@ -91,19 +105,25 @@ export function saveConfig(config) {
 
 /**
  * 记录触发日志
+ * 修复：添加错误处理，防止日志写入失败导致崩溃
  */
 export function logTrigger(event, action, details) {
-  const entry = {
-    timestamp: new Date().toISOString(),
-    event,
-    action,
-    details,
-  };
-  
-  const logEntry = `[${entry.timestamp}] ${event} → ${action}\n  ${JSON.stringify(details, null, 2)}\n\n`;
-  appendFileSync(TRIGGER_LOG_PATH, logEntry, 'utf-8');
-  
-  console.log(`🧠 自动触发：${event} → ${action}`);
+  try {
+    const entry = {
+      timestamp: new Date().toISOString(),
+      event,
+      action,
+      details,
+    };
+    
+    const logEntry = `[${entry.timestamp}] ${event} → ${action}\n  ${JSON.stringify(details, null, 2)}\n\n`;
+    appendFileSync(TRIGGER_LOG_PATH, logEntry, 'utf-8');
+    
+    console.log(`🧠 自动触发：${event} → ${action}`);
+  } catch (error) {
+    console.error('[AutoTrigger] Failed to log trigger:', error.message);
+    // 不抛出错误，继续执行
+  }
 }
 
 /**

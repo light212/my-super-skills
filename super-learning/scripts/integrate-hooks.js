@@ -25,6 +25,11 @@ const POSSIBLE_HOOK_PATHS = [
 
 /**
  * super-learning 需要注册的 Hook
+ * 修复：
+ * 1. 使用绝对路径
+ * 2. 添加错误处理
+ * 3. 使用 bash -c 包裹
+ * 4. 超时保护
  */
 const SUPER_LEARNING_HOOKS = {
   // 监听用户消息，触发关键词学习
@@ -32,7 +37,11 @@ const SUPER_LEARNING_HOOKS = {
     matcher: "",  // 匹配所有消息
     hooks: [{
       type: "command",
-      command: "node ~/.openclaw/skills/super-learning/lib/auto-trigger.js --message \"$MESSAGE\""
+      // 修复：使用 bash -c 包裹，添加错误处理和超时
+      command: "bash -c 'SUPER_LEARNING_DIR=\"$HOME/.openclaw/skills/super-learning\"; " +
+               "if [ -f \"$SUPER_LEARNING_DIR/lib/keyword-trigger.js\" ]; then " +
+               "timeout 5 node \"$SUPER_LEARNING_DIR/lib/keyword-trigger.js\" \"$MESSAGE\" 2>/dev/null || true; " +
+               "fi' || true"
     }]
   }],
   
@@ -41,7 +50,11 @@ const SUPER_LEARNING_HOOKS = {
     matcher: ".*",
     hooks: [{
       type: "command", 
-      command: "node ~/.openclaw/skills/super-learning/scripts/evolution-engine.ts --check"
+      // 修复：使用 bash -c 包裹，添加错误处理和超时
+      command: "bash -c 'SUPER_LEARNING_DIR=\"$HOME/.openclaw/skills/super-learning\"; " +
+               "if [ -f \"$SUPER_LEARNING_DIR/scripts/evolution-engine.ts\" ]; then " +
+               "timeout 5 node \"$SUPER_LEARNING_DIR/scripts/evolution-engine.ts\" --check 2>/dev/null || true; " +
+               "fi' || true"
     }]
   }]
 };
