@@ -8,11 +8,28 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const WORKSPACE = process.env.WORKSPACE || '/Users/tang/.openclaw/workspaces/yirenverse';
-const TRIGGER_LOG_PATH = join(WORKSPACE, 'my-super-skills/super-learning/logs/keyword-triggers.log');
 
+// 修复：使用环境变量或默认路径，支持多用户
+const WORKSPACE = process.env.WORKSPACE || join(process.env.HOME || '/tmp', '.openclaw/workspaces/default');
+const SUPER_LEARNING_DIR = process.env.SUPER_LEARNING_DIR || join(process.env.HOME || '/tmp', '.openclaw/skills/super-learning');
+
+const TRIGGER_LOG_PATH = join(SUPER_LEARNING_DIR, 'logs/keyword-triggers.log');
+
+// 修复：添加错误处理，防止权限问题
 const logsDir = dirname(TRIGGER_LOG_PATH);
-if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
+try {
+  if (!existsSync(logsDir)) {
+    mkdirSync(logsDir, { recursive: true });
+  }
+} catch (error) {
+  console.error('[KeywordTrigger] Failed to create logs directory:', error.message);
+  // 使用临时目录
+  const tempLogsDir = join('/tmp', 'super-learning-logs');
+  if (!existsSync(tempLogsDir)) {
+    mkdirSync(tempLogsDir, { recursive: true });
+  }
+  TRIGGER_LOG_PATH = join(tempLogsDir, 'keyword-triggers.log');
+}
 
 // 匹配中文、英文、数字、连字符
 const WORD = '[\\u4e00-\\u9fa5a-zA-Z0-9_-]+';
