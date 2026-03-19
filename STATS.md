@@ -1,168 +1,180 @@
 # 技能仓库统计
 
 **仓库**: https://github.com/light212/my-super-skills  
-**位置**: `/Users/tangxuguang/project/git/billion-people-world/skills/my-super-skills/`  
-**创建日期**: 2026-03-20
+**位置**: `/Users/tang/.openclaw/workspaces/yirenverse/my-super-skills/`  
+**创建日期**: 2026-03-20  
+**最后更新**: 2026-03-20
 
 ---
 
-## 技能列表
+## 📊 总览
 
-| 技能名称 | 描述 | 文件数 | 大小 |
-|----------|------|--------|------|
-| **fullstack-developer** | 全栈开发工程师 | 1 | 7.4KB |
-| **code-reviewer** | 代码审查专家 | 8 | 3.2KB |
-| **debugger** | 调试专家 | 1 | 1.1KB |
-| **project-planner** | 项目规划师 | 1 | 0.9KB |
-| **product-designer** | 产品设计师 | 1 | 0.8KB |
-
-**总计**: 5 个技能，13.4KB
+| 指标 | 数值 |
+|------|------|
+| **技能数量** | 1 |
+| **总文件数** | 20 |
+| **代码行数** | ~2,700 |
+| **神经元模板** | 4 |
+| **核心理论** | 5 |
 
 ---
 
-## 技能详情
+## 🧠 Super-Learning 技能详情
 
-### 1. fullstack-developer (全栈开发工程师)
+### 文件结构
 
-**适用场景**:
-- 构建完整 Web 应用
-- 开发 REST/GraphQL API
-- 创建 React/Next.js 前端
-- 设置数据库和数据模型
+```
+super-learning/
+├── SKILL.md (7.9KB)                    # 核心协议
+├── README.md (4.4KB)                   # 使用指南
+├── lib/                                # 被动学习核心 (3 文件)
+│   ├── mirror-learning.js              # 镜像神经元学习
+│   ├── template-clone.js               # 模板克隆
+│   └── knowledge-transfer.js           # 知识传递
+├── scripts/                            # 主动学习核心 (4 文件)
+│   ├── L1-user-learner.ts              # 用户层学习
+│   ├── L2-skill-learner.ts             # 技能层学习
+│   ├── L3-system-optimizer.ts          # 系统层优化
+│   └── evolution-engine.ts             # 进化决策
+├── references/                         # 动态参考 (4 文件)
+│   ├── user-model.md                   # 用户认知模型
+│   ├── skill-patterns.md               # 技能模式库
+│   ├── system-architecture.md          # 系统架构认知
+│   └── evolution-history.md            # 进化日志
+├── assets/                             # 静态资源 (2 文件)
+│   ├── correction-patterns.md          # 纠正模式库
+│   └── optimization-proposals.md       # 优化提案模板
+├── templates/                          # 神经元模板 (4 文件)
+│   ├── ceo.json                        # CEO 模板
+│   ├── product-mgr.json                # 产品经理模板
+│   ├── software-dev.json               # 软件开发模板
+│   └── fullstack-developer.json        # 全栈开发模板
+└── tests/                              # 测试 (1 文件)
+    └── learning.test.js                # 学习测试
+```
 
-**技术栈**:
-- **前端**: React, Next.js, TypeScript, Tailwind CSS
-- **后端**: Node.js, Express, TypeScript, JWT/OAuth
-- **数据库**: PostgreSQL, MongoDB, Prisma, Redis
+### 功能模块
 
-**文件**:
-- `SKILL.md` - 技能定义
-
-### 2. code-reviewer (代码审查专家)
-
-**适用场景**:
-- 代码审查
-- 质量检查
-- 最佳实践建议
-
-**审查规则**:
-- `correctness-error-handling.md` - 错误处理
-- `maintainability-naming.md` - 命名规范
-- `maintainability-type-hints.md` - 类型提示
-- `performance-n-plus-one.md` - N+1 查询优化
-- `security-sql-injection.md` - SQL 注入防护
-- `security-xss-prevention.md` - XSS 防护
-
-**文件**:
-- `SKILL.md` - 技能定义
-- `AGENTS.md` - Agent 配置
-- `rules/` - 审查规则目录
-
-### 3. debugger (调试专家)
-
-**适用场景**:
-- 调试复杂问题
-- 定位 Bug
-- 性能分析
-
-**文件**:
-- `SKILL.md` - 技能定义
-
-### 4. project-planner (项目规划师)
-
-**适用场景**:
-- 项目规划
-- 任务分解
-- 时间估算
-
-**文件**:
-- `SKILL.md` - 技能定义
-
-### 5. product-designer (产品设计师)
-
-**适用场景**:
-- 产品设计
-- 用户体验优化
-- 界面设计
-
-**文件**:
-- `SKILL.md` - 技能定义
+| 模块 | 文件数 | 代码量 | 描述 |
+|------|--------|--------|------|
+| **被动学习** | 3 | ~860 行 | 镜像/克隆/传递 |
+| **主动学习** | 4 | ~1,400 行 | L1/L2/L3 学习器 |
+| **进化引擎** | 1 | ~340 行 | 决策引擎 |
+| **模板** | 4 | ~58 行 | 神经元模板 |
+| **文档** | 9 | ~1,000 行 | SKILL/README/参考 |
 
 ---
 
-## 使用统计
+## 🎓 理论基础
 
-### 技能使用频率
+| 理论 | 科学家 | 机构 | 应用 |
+|------|--------|------|------|
+| **镜像神经元** | Giacomo Rizzolatti | 帕尔马大学 | 镜像学习 |
+| **HMAX 模型** | Tomaso Poggio | MIT | 模板克隆 |
+| **整合信息论** | Christof Koch | Allen Institute | 知识传递 |
+| **预测编码** | Karl Friston | - | 主动学习 |
+| **元认知** | John Flavell | Stanford | 三层学习 |
+
+---
+
+## 📈 开发进度
+
+| 阶段 | 状态 | 完成度 |
+|------|------|--------|
+| **MVP** | ✅ 完成 | 100% |
+| **V2** | ⏳ 计划 | 0% |
+| **V3** | ⏳ 计划 | 0% |
+
+### MVP 功能清单
+
+- [x] 镜像学习
+- [x] 模板克隆
+- [x] 知识传递
+- [x] L1 用户层学习（纠正捕捉）
+- [x] L2 技能层学习（扫描框架）
+- [x] L3 系统层学习（监控框架）
+- [x] 进化引擎（基础决策）
+- [x] 4 个神经元模板
+- [x] 完整文档
+
+---
+
+## 🔧 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| **运行时** | Node.js, TypeScript |
+| **被动学习** | JavaScript (ES6+) |
+| **主动学习** | TypeScript |
+| **测试** | Node.js native assert |
+| **文档** | Markdown |
+
+---
+
+## 📦 依赖
+
+**无外部依赖** - 纯 Node.js 原生实现
+
+---
+
+## 🚀 使用统计
+
+### 安装方式
 
 ```bash
-# 查看技能被 Agent 使用情况
-ls -la ~/.openclaw/agents/*/agent/skills/ | grep -E "fullstack-developer|code-reviewer|debugger"
+# 软链接（推荐）
+ln -s /Users/tang/.openclaw/workspaces/yirenverse/my-super-skills/super-learning ~/.openclaw/skills/super-learning
 ```
 
-### 技能学习效果
+### 命令使用
 
 ```bash
-# 查看神经元学习的技能
-ls -la ~/.openclaw/agents/<agent-name>/agent/skills/
+# 被动学习
+openclaw learning mirror <observer> <target>
+openclaw learning clone <template> <new-name>
+openclaw learning transfer <from> <to> [type]
+
+# 主动学习
+node scripts/L1-user-learner.ts --capture
+node scripts/L2-skill-learner.ts --scan
+node scripts/L3-system-optimizer.ts --analyze
+node scripts/evolution-engine.ts --run
 ```
 
 ---
 
-## 添加新技能
-
-### 1. 创建技能目录
+## 📝 提交历史
 
 ```bash
-cd /Users/tangxuguang/project/git/billion-people-world/skills/my-super-skills
-mkdir <skill-name>
+# 最近提交
+git log --oneline -10
 ```
 
-### 2. 创建 SKILL.md
-
-```markdown
----
-name: <skill-name>
-description: 技能描述
-license: MIT
----
-
-# 技能名称
-
-技能详细说明...
-```
-
-### 3. 提交并推送
-
-```bash
-git add .
-git commit -m "feat: 添加 <skill-name> 技能"
-git push
-```
+| 提交 | 描述 | 日期 |
+|------|------|------|
+| 179c214 | chore: 清理仓库，只保留 super-learning | 2026-03-20 |
+| 461068d | feat: 创建 super-learning 超脑完整学习系统 | 2026-03-20 |
 
 ---
 
-## 与学习模块集成
+## 🎯 下一步
 
-学习模块会自动从以下目录查找技能：
+### 待实现功能
 
-1. `~/project/git/billion-people-world/skills/my-super-skills/` ⭐ (优先)
-2. `~/project/git/billion-people-world/skills/`
-3. `~/.openclaw/skills/`
+- [ ] L2 技能扫描实际实现
+- [ ] L3 系统监控 OpenClaw 运行时
+- [ ] Hook 自动触发集成
+- [ ] 更多神经元模板
+- [ ] 批量操作支持
+- [ ] 知识网络可视化
 
-### 示例：克隆全栈工程师
+### 优化机会
 
-```bash
-# 使用学习模块克隆
-openclaw learning clone fullstack-developer dev-1
-
-# 输出:
-📚 学习技能...
-   ✅ 技能：fullstack-developer (从 my-super-skills 仓库)
-✅ 学习了 1/1 个技能
-```
+- [ ] TypeScript 类型完善
+- [ ] 单元测试覆盖
+- [ ] 性能优化（大知识库传递）
+- [ ] 配置验证
 
 ---
 
-## 许可证
-
-MIT License - 亿人世界
+**许可证**: MIT License - 亿人世界
