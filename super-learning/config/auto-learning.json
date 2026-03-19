@@ -1,0 +1,32 @@
+{
+  "autoClone": {
+    "enabled": true,
+    "templates": {
+      "ceo": "ceo",
+      "pm": "product-mgr",
+      "dev": "software-dev",
+      "fe": "fullstack-developer",
+      "designer": "product-designer"
+    },
+    "defaultTemplate": "software-dev"
+  },
+  "autoMirror": {
+    "enabled": true,
+    "observationPeriod": "24h",
+    "minObservations": 10,
+    "pairs": [
+      { "observer": "new-*", "target": "*-1" },
+      { "observer": "*-2", "target": "*-1" },
+      { "observer": "junior-*", "target": "senior-*" }
+    ]
+  },
+  "autoTransfer": {
+    "enabled": true,
+    "rules": [
+      { "from": "ceo-*", "to": "pm-*", "type": "skills" },
+      { "from": "pm-*", "to": "dev-*", "type": "patterns" },
+      { "from": "*-1", "to": "*-2", "type": "memory" },
+      { "from": "senior-*", "to": "junior-*", "type": "all" }
+    ]
+  }
+}
