@@ -1,0 +1,20 @@
+# Web 框架
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# AI/ML
+deap==1.4.1  # 进化算法
+optuna==3.5.0  # 优化算法
+scikit-learn==1.4.0  # 机器学习
+numpy==1.26.3
+pandas==2.1.4
+
+# 工具
+aiohttp==3.9.1  # 异步 HTTP
+python-dotenv==1.0.0  # 环境变量
+pyyaml==6.0.1  # YAML 解析
+
+# 测试
+pytest==7.4.4
+pytest-asyncio==0.23.3
