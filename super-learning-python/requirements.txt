@@ -1,24 +1,24 @@
-# Web 框架
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-pydantic==2.5.3
+# Web 框架 (兼容 Python 3.7)
+fastapi==0.95.2
+uvicorn[standard]==0.22.0
+pydantic==1.10.13
 
-# AI/ML
+# AI/ML (兼容 Python 3.7)
 deap==1.4.1  # 进化算法
-optuna==3.5.0  # 优化算法
-scikit-learn==1.4.0  # 机器学习
-numpy==1.26.3
-pandas==2.1.4
+optuna==3.1.1  # 优化算法
+scikit-learn==1.0.2  # 机器学习
+numpy==1.21.6
+pandas==1.3.5
 
 # 工具
-aiohttp==3.9.1  # 异步 HTTP
-python-dotenv==1.0.0  # 环境变量
+aiohttp==3.8.6  # 异步 HTTP
+python-dotenv==0.21.1  # 环境变量
 pyyaml==6.0.1  # YAML 解析
 
 # 测试
-pytest==7.4.4
-pytest-asyncio==0.23.3
+pytest==7.2.2
+pytest-asyncio==0.21.1
 
 # 可视化
-plotly==5.18.0
+plotly==5.14.1
 kaleido==0.2.1

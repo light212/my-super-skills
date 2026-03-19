@@ -121,14 +121,16 @@ class SelfEvolutionEngine:
         # 注册变异算子（多项式变异）
         self.toolbox.register("mutate", tools.mutPolynomialBounded, low=0, up=1, eta=20, indpb=0.1)
     
-    def evaluate_fitness(self, individual: List[float]) -> tuple:
+    def evaluate_fitness(self, individual) -> tuple:
         """
         评估适应度
         
         需要根据实际性能数据计算
         这里使用模拟数据
         """
-        strategy = LearningStrategy.from_genome(individual)
+        # DEAP individual 可能是 tuple 或 list
+        genome = list(individual) if isinstance(individual, (tuple, list)) else individual
+        strategy = LearningStrategy.from_genome(genome)
         
         # 模拟性能评估
         # 实际应用中应该从真实数据计算
@@ -185,14 +187,14 @@ class SelfEvolutionEngine:
             # 交叉
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 if random.random() < 0.7:  # 交叉概率 70%
-                    self.toolbox.mate(child1[0], child2[0])
+                    self.toolbox.mate(child1, child2)
                     del child1.fitness.values
                     del child2.fitness.values
             
             # 变异
             for mutant in offspring:
                 if random.random() < 0.2:  # 变异概率 20%
-                    self.toolbox.mutate(mutant[0])
+                    self.toolbox.mutate(mutant)
                     del mutant.fitness.values
             
             # 替换种群
