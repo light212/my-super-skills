@@ -130,14 +130,20 @@ class AutonomousDaemon:
             # 第一次运行，获取最近 1 小时的数据
             start_time = (now - timedelta(hours=1)).isoformat()
         
-        # 搜索新数据
-        queries = [
-            {
-                'filters': {
-                    'timestamp_gte': start_time,
-                }
-            }
-        ]
+        # 获取新数据（简化实现）
+        events = self.collector.get_events(limit=100)
+        
+        # 过滤新数据
+        new_events = []
+        for event in events:
+            event_time = event.get('timestamp', '')
+            if event_time and event_time >= start_time:
+                new_events.append(event)
+        
+        new_count = len(new_events)
+        
+        if new_count > 0:
+            self._log(f"发现 {new_count} 条新数据", 'INFO')
         
         results = self.search_engine.search(
             queries=queries,
