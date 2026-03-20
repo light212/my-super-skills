@@ -88,26 +88,34 @@ class SelfEvolutionEngine:
     def setup_evolution(self):
         """设置进化算法"""
         # 创建适应度类（最大化）
-        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        try:
+            creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        except TypeError:
+            # 类已存在，跳过
+            pass
         
         # 创建个体类
-        creator.create("Individual", list, fitness=creator.FitnessMax)
+        try:
+            creator.create("Individual", list, fitness=creator.FitnessMax)
+        except TypeError:
+            # 类已存在，跳过
+            pass
         
         # 注册基因生成器（6 个参数，范围 0-1）
         for i in range(6):
             self.toolbox.register(f"attr_{i}", random.uniform, 0, 1)
         
-        # 注册个体生成器
-        self.toolbox.register(
-            "individual",
-            tools.initCycle,
-            creator.Individual,
-            [getattr(self.toolbox, f"attr_{i}") for i in range(6)],
-            n=1
-        )
+        # 注册个体生成器 - 直接创建 list
+        def create_individual():
+            return [getattr(self.toolbox, f"attr_{i}")() for i in range(6)]
+        
+        self.toolbox.register("individual", create_individual)
         
         # 注册种群生成器
-        self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
+        def create_population(n):
+            return [create_individual() for _ in range(n)]
+        
+        self.toolbox.register("population", create_population)
         
         # 注册适应度函数
         self.toolbox.register("evaluate", self.evaluate_fitness)
@@ -121,21 +129,18 @@ class SelfEvolutionEngine:
         # 注册变异算子（多项式变异）
         self.toolbox.register("mutate", tools.mutPolynomialBounded, low=0, up=1, eta=20, indpb=0.1)
     
-    def evaluate_fitness(self, individual) -> tuple:
+    def evaluate_fitness(self, genome) -> tuple:
         """
         评估适应度
         
-        需要根据实际性能数据计算
-        这里使用模拟数据
+        Args:
+            genome: 基因组 (list of 6 floats)
+        
+        Returns:
+            适应度分数 tuple
         """
-        # DEAP individual 可能是 tuple 或 list
-        genome = list(individual) if isinstance(individual, (tuple, list)) else individual
         strategy = LearningStrategy.from_genome(genome)
-        
-        # 模拟性能评估
-        # 实际应用中应该从真实数据计算
         metrics = self.simulate_performance(strategy)
-        
         return (metrics.score(),)
     
     def simulate_performance(self, strategy: LearningStrategy) -> PerformanceMetrics:
@@ -155,71 +160,66 @@ class SelfEvolutionEngine:
     
     def evolve(self, initial_population: List[LearningStrategy] = None) -> LearningStrategy:
         """
-        执行进化
+        执行进化 (简化版，不依赖 DEAP 复杂功能)
         
         Returns:
             最优学习策略
         """
-        # 创建初始种群
-        if initial_population:
-            population = [
-                self.toolbox.individual()[0]
-                for _ in range(self.population_size)
-            ]
-            # 用初始策略替换部分个体
-            for i, strategy in enumerate(initial_population[:10]):
-                if i < len(population):
-                    population[i] = list(strategy.to_genome())
-        else:
-            population = [self.toolbox.individual()[0] for _ in range(self.population_size)]
+        # 创建初始种群 (简单的 list of lists)
+        population = []
+        for _ in range(self.population_size):
+            genome = [random.uniform(0, 1) for _ in range(6)]
+            population.append({'genome': genome, 'fitness': None})
         
         # 进化循环
         for generation in range(self.generations):
             # 评估适应度
-            fitnesses = map(self.toolbox.evaluate, population)
-            for ind, fit in zip(population, fitnesses):
-                ind.fitness.values = fit
+            for ind in population:
+                ind['fitness'] = self.evaluate_fitness(ind['genome'])[0]
             
-            # 选择、交叉、变异
-            offspring = self.toolbox.select(population, len(population))
-            offspring = list(map(self.toolbox.clone, offspring))
+            # 选择 (锦标赛选择)
+            offspring = []
+            for _ in range(self.population_size):
+                contestants = random.sample(population, 3)
+                winner = max(contestants, key=lambda x: x['fitness'])
+                offspring.append({'genome': winner['genome'][:], 'fitness': None})
             
             # 交叉
-            for child1, child2 in zip(offspring[::2], offspring[1::2]):
-                if random.random() < 0.7:  # 交叉概率 70%
-                    self.toolbox.mate(child1, child2)
-                    del child1.fitness.values
-                    del child2.fitness.values
+            for i in range(0, len(offspring), 2):
+                if i + 1 < len(offspring) and random.random() < 0.7:
+                    point = random.randint(1, 5)
+                    offspring[i]['genome'][point:], offspring[i+1]['genome'][point:] = \
+                        offspring[i+1]['genome'][point:], offspring[i]['genome'][point:]
             
             # 变异
-            for mutant in offspring:
-                if random.random() < 0.2:  # 变异概率 20%
-                    self.toolbox.mutate(mutant)
-                    del mutant.fitness.values
+            for ind in offspring:
+                if random.random() < 0.2:
+                    gene_idx = random.randint(0, 5)
+                    ind['genome'][gene_idx] = random.uniform(0, 1)
             
-            # 替换种群
-            population = [
-                ind for ind in offspring
-                if ind.fitness.valid
-            ]
+            # 评估新种群的适应度
+            for ind in offspring:
+                ind['fitness'] = self.evaluate_fitness(ind['genome'])[0]
+            
+            population = offspring
             
             # 记录这一代
-            best_ind = tools.selBest(population, 1)[0]
+            best_ind = max(population, key=lambda x: x['fitness'] if x['fitness'] is not None else -1)
             self.generations_history.append({
                 "generation": generation,
-                "best_fitness": best_ind.fitness.values[0],
-                "best_genome": list(best_ind[0]),
+                "best_fitness": best_ind['fitness'],
+                "best_genome": best_ind['genome'],
                 "timestamp": datetime.now().isoformat(),
             })
             
             self.current_generation = generation
             
-            print(f"🧬 第 {generation} 代：最佳适应度 = {best_ind.fitness.values[0]:.4f}")
+            print(f"🧬 第 {generation} 代：最佳适应度 = {best_ind['fitness']:.4f}")
         
         # 返回最优策略
-        best_ind = tools.selBest(population, 1)[0]
+        best_ind = max(population, key=lambda x: x['fitness'])
         best_strategy = LearningStrategy.from_genome(
-            list(best_ind[0]),
+            best_ind['genome'],
             id=f"evolved_gen_{self.current_generation}"
         )
         
