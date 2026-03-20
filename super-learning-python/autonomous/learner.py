@@ -85,6 +85,15 @@ class AutonomousLearner:
         """保存状态"""
         os.makedirs(os.path.dirname(self.state_path), exist_ok=True)
         
+        # 自定义 JSON 编码器
+        class StateEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, datetime):
+                    return obj.isoformat()
+                if isinstance(obj, GrowthStage):
+                    return obj.value
+                return super().default(obj)
+        
         state = {
             'capabilities': self.capabilities,
             'current_cycle': self.current_cycle.__dict__ if self.current_cycle else None,
@@ -92,7 +101,7 @@ class AutonomousLearner:
         }
         
         with open(self.state_path, 'w', encoding='utf-8') as f:
-            json.dump(state, f, ensure_ascii=False, indent=2)
+            json.dump(state, f, ensure_ascii=False, indent=2, cls=StateEncoder)
     
     def start_cycle(self) -> LearningCycle:
         """
