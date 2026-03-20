@@ -38,6 +38,43 @@ uvicorn api.api:app --reload --host 0.0.0.0 --port 8000
 
 ---
 
+## 📊 数据收集与优化
+
+### 记录学习数据
+
+```bash
+curl -X POST "http://localhost:8000/data/record" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_type": "clone",
+    "agent_id": "ceo-1",
+    "context": {"template": "ceo"},
+    "result": {"success": true},
+    "performance_score": 0.85
+  }'
+```
+
+### 分析数据
+
+```bash
+# 获取洞察
+curl "http://localhost:8000/data/analyze"
+
+# 优化策略
+curl "http://localhost:8000/data/optimize"
+
+# 生成报告
+curl "http://localhost:8000/data/report"
+```
+
+### 导出数据
+
+```bash
+curl -X POST "http://localhost:8000/data/export?output_path=/tmp/data.json"
+```
+
+---
+
 ## 📡 API 接口
 
 ### 进化引擎

@@ -12,6 +12,8 @@ import asyncio
 
 from .core.evolution_engine import SelfEvolutionEngine, LearningStrategy
 from .core.auto_detector import LearningOpportunityDetector, LearningOpportunity
+from .data_collector.collector import DataCollector, LearningEvent
+from .optimizers.data_optimizer import DataAnalyzer, StrategyOptimizer
 
 
 app = FastAPI(
@@ -74,12 +76,15 @@ class OptimizeResponse(BaseModel):
 
 evolution_engine: Optional[SelfEvolutionEngine] = None
 detector: Optional[LearningOpportunityDetector] = None
+collector: Optional[DataCollector] = None
+analyzer: Optional[DataAnalyzer] = None
+optimizer: Optional[StrategyOptimizer] = None
 
 
 @app.on_event("startup")
 async def startup_event():
     """启动时初始化"""
-    global evolution_engine, detector
+    global evolution_engine, detector, collector, analyzer, optimizer
     
     evolution_engine = SelfEvolutionEngine(
         population_size=50,
@@ -88,7 +93,16 @@ async def startup_event():
     
     detector = LearningOpportunityDetector()
     
+    collector = DataCollector()
+    analyzer = DataAnalyzer(collector)
+    optimizer = StrategyOptimizer(collector, analyzer)
+    
     print("🚀 Super-Learning API 启动完成")
+    print("   - 进化引擎：就绪")
+    print("   - 检测器：就绪")
+    print("   - 数据收集：就绪")
+    print("   - 数据分析：就绪")
+    print("   - 策略优化：就绪")
 
 
 # ============ API 接口 ============
@@ -344,6 +358,143 @@ async def transfer_learning(source_agent: str, target_agent: str):
         "target": target_agent,
         "knowledge_items": 5,
         "message": f"知识从 {source_agent} 迁移到 {target_agent}",
+    }
+
+
+# ============ 数据收集与分析接口 ============
+
+@app.post("/data/record")
+async def record_data(event: Dict[str, Any]):
+    """
+    记录学习数据
+    
+    用于后续分析和优化
+    """
+    if not collector:
+        raise HTTPException(status_code=503, detail="Data collector not initialized")
+    
+    try:
+        learning_event = LearningEvent(
+            event_type=event.get('event_type', 'unknown'),
+            agent_id=event.get('agent_id', 'unknown'),
+            timestamp=event.get('timestamp', datetime.now().isoformat()),
+            context=event.get('context', {}),
+            result=event.get('result'),
+            performance_score=event.get('performance_score', 0.0),
+        )
+        
+        collector.record_event(learning_event)
+        
+        return {
+            "status": "recorded",
+            "event_id": learning_event.event_type,
+            "agent_id": learning_event.agent_id,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/data/events")
+async def get_events(
+    agent_id: str = None,
+    event_type: str = None,
+    limit: int = 100,
+):
+    """
+    获取学习事件
+    """
+    if not collector:
+        raise HTTPException(status_code=503, detail="Data collector not initialized")
+    
+    events = collector.get_events(
+        agent_id=agent_id,
+        event_type=event_type,
+        limit=limit,
+    )
+    
+    return {
+        "events": events,
+        "count": len(events),
+    }
+
+
+@app.get("/data/stats")
+async def get_stats(agent_id: str = None):
+    """
+    获取统计数据
+    """
+    if not collector:
+        raise HTTPException(status_code=503, detail="Data collector not initialized")
+    
+    if agent_id:
+        stats = collector.get_agent_stats(agent_id)
+    else:
+        stats = collector.get_all_agents_stats()
+    
+    return {
+        "stats": stats,
+    }
+
+
+@app.get("/data/analyze")
+async def analyze_data():
+    """
+    分析数据
+    """
+    if not analyzer:
+        raise HTTPException(status_code=503, detail="Analyzer not initialized")
+    
+    insights = analyzer.generate_insights()
+    
+    return {
+        "insights": insights,
+        "count": len(insights),
+    }
+
+
+@app.get("/data/optimize")
+async def optimize_strategy():
+    """
+    优化策略
+    
+    基于真实数据优化学习参数
+    """
+    if not optimizer:
+        raise HTTPException(status_code=503, detail="Optimizer not initialized")
+    
+    optimized_params = optimizer.optimize_parameters()
+    
+    return {
+        "optimized_parameters": optimized_params,
+    }
+
+
+@app.get("/data/report")
+async def generate_report():
+    """
+    生成优化报告
+    """
+    if not optimizer:
+        raise HTTPException(status_code=503, detail="Optimizer not initialized")
+    
+    report = optimizer.generate_report()
+    
+    return report
+
+
+@app.post("/data/export")
+async def export_data(output_path: str):
+    """
+    导出数据
+    """
+    if not collector:
+        raise HTTPException(status_code=503, detail="Data collector not initialized")
+    
+    collector.export_data(output_path)
+    
+    return {
+        "status": "exported",
+        "path": output_path,
     }
 
 
