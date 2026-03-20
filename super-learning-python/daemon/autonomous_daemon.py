@@ -144,16 +144,6 @@ class AutonomousDaemon:
         
         if new_count > 0:
             self._log(f"发现 {new_count} 条新数据", 'INFO')
-        
-        results = self.search_engine.search(
-            queries=queries,
-            max_depth=1,
-            min_precision=0.0,
-        )
-        
-        new_count = len(results)
-        
-        if new_count > 0:
             self._log(f"发现 {new_count} 条新数据", 'INFO')
         
         self.last_check = now
@@ -255,14 +245,15 @@ class AutonomousDaemon:
                 new_data = self.check_new_data()
                 
                 # 2. 运行学习循环 (每 30 分钟且有新数据)
-                if (
-                    new_data > 0 and
-                    self.last_cycle and
-                    (now - self.last_cycle).total_seconds() >= self.config['cycle_interval']
-                ):
-                    self.run_learning_cycle()
-                elif not self.last_cycle:
+                should_cycle = False
+                
+                if not self.last_cycle:
                     # 第一次运行
+                    should_cycle = True
+                elif new_data > 0 and (now - self.last_cycle).total_seconds() >= self.config['cycle_interval']:
+                    should_cycle = True
+                
+                if should_cycle:
                     self.run_learning_cycle()
                 
                 # 3. 生成报告 (每 24 小时)
