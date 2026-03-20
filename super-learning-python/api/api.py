@@ -14,6 +14,7 @@ from .core.evolution_engine import SelfEvolutionEngine, LearningStrategy
 from .core.auto_detector import LearningOpportunityDetector, LearningOpportunity
 from .data_collector.collector import DataCollector, LearningEvent
 from .optimizers.data_optimizer import DataAnalyzer, StrategyOptimizer
+from .tools.smart_grep import SmartGrep, SearchMatch
 
 
 app = FastAPI(
@@ -79,12 +80,13 @@ detector: Optional[LearningOpportunityDetector] = None
 collector: Optional[DataCollector] = None
 analyzer: Optional[DataAnalyzer] = None
 optimizer: Optional[StrategyOptimizer] = None
+grep_tool: Optional[SmartGrep] = None
 
 
 @app.on_event("startup")
 async def startup_event():
     """启动时初始化"""
-    global evolution_engine, detector, collector, analyzer, optimizer
+    global evolution_engine, detector, collector, analyzer, optimizer, grep_tool
     
     evolution_engine = SelfEvolutionEngine(
         population_size=50,
@@ -96,6 +98,7 @@ async def startup_event():
     collector = DataCollector()
     analyzer = DataAnalyzer(collector)
     optimizer = StrategyOptimizer(collector, analyzer)
+    grep_tool = SmartGrep()
     
     print("🚀 Super-Learning API 启动完成")
     print("   - 进化引擎：就绪")
@@ -103,6 +106,7 @@ async def startup_event():
     print("   - 数据收集：就绪")
     print("   - 数据分析：就绪")
     print("   - 策略优化：就绪")
+    print("   - 智能 Grep: 就绪")
 
 
 # ============ API 接口 ============
@@ -495,6 +499,99 @@ async def export_data(output_path: str):
     return {
         "status": "exported",
         "path": output_path,
+    }
+
+
+# ============ 智能 Grep 接口 ============
+
+@app.get("/grep/search")
+async def grep_search(
+    query: str,
+    search_type: str = 'auto',
+    limit: int = 50,
+):
+    """
+    智能搜索
+    
+    search_type: auto, exact, regex, fuzzy, semantic
+    """
+    if not grep_tool:
+        raise HTTPException(status_code=503, detail="Grep tool not initialized")
+    
+    results = grep_tool.search(
+        query=query,
+        search_type=search_type,
+        limit=limit,
+    )
+    
+    return {
+        "query": query,
+        "search_type": search_type,
+        "count": len(results),
+        "results": [
+            {
+                "source": r.source,
+                "match_type": r.match_type,
+                "content": r.content,
+                "score": r.score,
+                "metadata": r.metadata,
+            }
+            for r in results
+        ],
+    }
+
+
+@app.get("/grep/events")
+async def grep_events(
+    event_type: str = None,
+    agent_id: str = None,
+    min_score: float = None,
+    limit: int = 100,
+):
+    """
+    搜索学习事件
+    """
+    if not grep_tool:
+        raise HTTPException(status_code=503, detail="Grep tool not initialized")
+    
+    events = grep_tool.search_events(
+        event_type=event_type,
+        agent_id=agent_id,
+        min_score=min_score,
+        limit=limit,
+    )
+    
+    return {
+        "count": len(events),
+        "events": events,
+    }
+
+
+@app.post("/grep/export")
+async def grep_export(
+    query: str,
+    output_path: str,
+    format: str = 'json',
+    search_type: str = 'auto',
+):
+    """
+    导出搜索结果
+    """
+    if not grep_tool:
+        raise HTTPException(status_code=503, detail="Grep tool not initialized")
+    
+    results = grep_tool.search(
+        query=query,
+        search_type=search_type,
+        limit=1000,
+    )
+    
+    grep_tool.export_results(results, output_path, format)
+    
+    return {
+        "status": "exported",
+        "path": output_path,
+        "count": len(results),
     }
 
 
