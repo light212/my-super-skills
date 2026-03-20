@@ -257,15 +257,17 @@ class AutonomousDaemon:
                     self.run_learning_cycle()
                 
                 # 3. 生成报告 (每 24 小时)
-                if (
-                    self.last_report and
-                    (now - self.last_report).total_seconds() >= self.config['report_interval']
-                ):
-                    self.generate_report()
-                elif not self.last_report:
+                should_report = False
+                
+                if not self.last_report:
                     # 第一次运行，1 分钟后生成报告
-                    if (now - self.last_cycle).total_seconds() > 60:
-                        self.generate_report()
+                    if self.last_cycle and (now - self.last_cycle).total_seconds() > 60:
+                        should_report = True
+                elif (now - self.last_report).total_seconds() >= self.config['report_interval']:
+                    should_report = True
+                
+                if should_report:
+                    self.generate_report()
                 
                 # 等待
                 time.sleep(self.config['check_interval'])
