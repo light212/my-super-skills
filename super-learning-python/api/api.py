@@ -15,6 +15,7 @@ from .core.auto_detector import LearningOpportunityDetector, LearningOpportunity
 from .data_collector.collector import DataCollector, LearningEvent
 from .optimizers.data_optimizer import DataAnalyzer, StrategyOptimizer
 from .tools.smart_grep import SmartGrep, SearchMatch
+from .search.nested_search import NestedSearchEngine, NestedSearchResult
 
 
 app = FastAPI(
@@ -81,12 +82,13 @@ collector: Optional[DataCollector] = None
 analyzer: Optional[DataAnalyzer] = None
 optimizer: Optional[StrategyOptimizer] = None
 grep_tool: Optional[SmartGrep] = None
+nested_search: Optional[NestedSearchEngine] = None
 
 
 @app.on_event("startup")
 async def startup_event():
     """启动时初始化"""
-    global evolution_engine, detector, collector, analyzer, optimizer, grep_tool
+    global evolution_engine, detector, collector, analyzer, optimizer, grep_tool, nested_search
     
     evolution_engine = SelfEvolutionEngine(
         population_size=50,
@@ -99,6 +101,7 @@ async def startup_event():
     analyzer = DataAnalyzer(collector)
     optimizer = StrategyOptimizer(collector, analyzer)
     grep_tool = SmartGrep()
+    nested_search = NestedSearchEngine()
     
     print("🚀 Super-Learning API 启动完成")
     print("   - 进化引擎：就绪")
@@ -107,6 +110,7 @@ async def startup_event():
     print("   - 数据分析：就绪")
     print("   - 策略优化：就绪")
     print("   - 智能 Grep: 就绪")
+    print("   - 嵌套搜索：就绪")
 
 
 # ============ API 接口 ============
@@ -593,6 +597,106 @@ async def grep_export(
         "path": output_path,
         "count": len(results),
     }
+
+
+# ============ 嵌套搜索接口 ============
+
+@app.get("/search/nested")
+async def nested_search(
+    queries: str,
+    max_depth: int = 3,
+    min_precision: float = 0.7,
+):
+    """
+    嵌套搜索
+    
+    queries: JSON 格式的查询列表
+    """
+    if not nested_search:
+        raise HTTPException(status_code=503, detail="Nested search not initialized")
+    
+    try:
+        query_list = json.loads(queries)
+    except json.JSONDecodeError:
+        query_list = [queries]
+    
+    results = nested_search.search(
+        queries=query_list,
+        max_depth=max_depth,
+        min_precision=min_precision,
+    )
+    
+    return {
+        "count": len(results),
+        "results": [
+            {
+                "path": r.path,
+                "precision_score": r.precision_score,
+                "relevance_score": r.relevance_score,
+                "context": r.context,
+                "content": r.content,
+            }
+            for r in results
+        ],
+    }
+
+
+@app.post("/search/drill-down")
+async def drill_down_search(
+    initial_query: str,
+    drill_path: List[Dict[str, Any]],
+):
+    """
+    钻取搜索
+    """
+    if not nested_search:
+        raise HTTPException(status_code=503, detail="Nested search not initialized")
+    
+    result = nested_search.drill_down(
+        initial_query=initial_query,
+        drill_path=drill_path,
+    )
+    
+    if not result:
+        return {
+            "found": False,
+        }
+    
+    return {
+        "found": True,
+        "result": {
+            "path": result.path,
+            "precision_score": result.precision_score,
+            "relevance_score": result.relevance_score,
+            "context": result.context,
+            "content": result.content,
+        },
+    }
+
+
+@app.get("/search/explain")
+async def explain_search(
+    result_json: str,
+):
+    """
+    解释搜索结果
+    """
+    if not nested_search:
+        raise HTTPException(status_code=503, detail="Nested search not initialized")
+    
+    try:
+        result_data = json.loads(result_json)
+        
+        # 重建 NestedSearchResult (简化)
+        explanation = nested_search.explain_result(None)
+        
+        return {
+            "explanation": explanation,
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+        }
 
 
 # ============ 主函数 ============
